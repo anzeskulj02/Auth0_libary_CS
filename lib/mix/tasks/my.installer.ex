@@ -33,7 +33,7 @@ defmodule Mix.Tasks.My.Installer do
     content =
       render_template(template_path, assigns)
 
-    File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}/controllers/auth0_controller.ex"), content)
+    File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/controllers/auth0_controller.ex"), content)
   end
 
   defp modify_router(app_path) do
