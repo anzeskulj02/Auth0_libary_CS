@@ -60,6 +60,10 @@ defmodule Mix.Tasks.My.Installer do
     content_tenant_data = render_template(Path.join(template_path, "tenant_data.ex"), assigns)
     content_tenant = render_template(Path.join(template_path, "tenant.ex"), assigns)
 
+    content_users_migration = render_template(Path.join(template_path, "20250311090001_create_users.exs"), assigns)
+    content_tenants_migration = render_template(Path.join(template_path, "20250311090000_create_tenants.exs"), assigns)
+    content_tenant_data_migrations = render_template(Path.join(template_path, "20250311090000_create_tenant_data.ex"), assigns)
+
     File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/controllers/auth0_controller.ex"), content_auth0_controller)
 
     case File.mkdir_p("lib/#{Macro.underscore(app_module)}_web/plugs") do
@@ -87,6 +91,15 @@ defmodule Mix.Tasks.My.Installer do
         Mix.shell().info("⚠️ Failed to create tenants folder.#{inspect(reason)}")
     end
 
+    case File.mkdir_p("priv/repo/migrations") do
+      :ok ->
+        File.write!(Path.join(app_path, "priv/repo/migrations/20250311090001_create_users.ex"), content_users_migration)
+        File.write!(Path.join(app_path, "priv/repo/migrations/20250311090000_create_tenants.ex"), content_tenants_migration)
+        File.write!(Path.join(app_path, "priv/repo/migrations/20250311090000_create_tenant_data.ex"), content_tenant_data_migrations)
+      {:error, reason} ->
+        Mix.shell().info("⚠️ Failed to create migrations folder.#{inspect(reason)}")
+    end
+
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/controllers/auth0_controller.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/plugs/ensure_authenticated.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/plugs/load_tenant.ex created")
@@ -94,6 +107,9 @@ defmodule Mix.Tasks.My.Installer do
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/accounts/user.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/tenants/tenant_data.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/tenants/tenant.ex created")
+    Mix.shell().info("✅ priv/repo/migrations/20250311090001_create_users.ex created")
+    Mix.shell().info("✅ priv/repo/migrations/20250311090000_create_tenants.ex created")
+    Mix.shell().info("✅ priv/repo/migrations/20250311090000_create_tenant_data.ex created")
     Mix.shell().info("\n")
   end
 
