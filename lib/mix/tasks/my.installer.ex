@@ -51,7 +51,7 @@ defmodule Mix.Tasks.My.Installer do
 
     case File.mkdir_p("lib/#{Macro.underscore(app_module)}/accounts") do
       :ok ->
-        File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}/accounts/users.ex"), content_users)
+        File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}/accounts/user.ex"), content_users)
       {:error, reason} ->
         Mix.shell().info("⚠️ Failed to create accounts folder.#{inspect(reason)}")
     end
@@ -68,7 +68,7 @@ defmodule Mix.Tasks.My.Installer do
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/plugs/ensure_authenticated.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/plugs/load_tenant.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/guardian.ex created")
-    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/accounts/users.ex created")
+    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/accounts/user.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/tenants/tenant_data.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/tenants/tenant.ex created")
   end
