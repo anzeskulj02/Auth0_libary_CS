@@ -1,5 +1,5 @@
 defmodule <%= app_module %>Web.Guardian do
-  use Guardian, otp_app: :aurora
+  use Guardian, otp_app: :<%= Macro.underscore(app_module) %>
 
   alias <%= app_module %>.Accounts
 

@@ -9,9 +9,9 @@ defmodule <%= app_module %>.Auth0API do
   Get an access token for the Auth0 Management API.
   """
   def get_access_token do
-    domain = Application.get_env(:aurora, __MODULE__)[:domain]
-    client_id = Application.get_env(:aurora, __MODULE__)[:client_id]
-    client_secret = Application.get_env(:aurora, __MODULE__)[:client_secret]
+    domain = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:domain]
+    client_id = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:client_id]
+    client_secret = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:client_secret]
 
     case Req.post("https://#{domain}/oauth/token",
            json: %{
@@ -39,7 +39,7 @@ defmodule <%= app_module %>.Auth0API do
   """
   def get_organization(organization_id) do
     with {:ok, token} <- get_access_token(),
-         domain = Application.get_env(:aurora, __MODULE__)[:domain],
+         domain = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:domain],
          {:ok, %{status: 200, body: body}} <-
            Req.get(
              "https://#{domain}/api/v2/organizations/#{organization_id}",
@@ -65,7 +65,7 @@ defmodule <%= app_module %>.Auth0API do
   """
   def list_organizations do
     with {:ok, token} <- get_access_token(),
-         domain = Application.get_env(:aurora, __MODULE__)[:domain],
+         domain = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:domain],
          {:ok, %{status: 200, body: body}} <-
            Req.get(
              "https://#{domain}/api/v2/organizations",
@@ -92,7 +92,7 @@ defmodule <%= app_module %>.Auth0API do
   def check_organization_member(organization_id, user_id) do
     encoded_user_id = URI.encode_www_form(user_id)
     with {:ok, token} <- get_access_token(),
-         domain = Application.get_env(:auth0poc, __MODULE__)[:domain],
+         domain = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:domain],
          {:ok, %{status: 200, body: body}} <-
            Req.get(
              "https://#{domain}/api/v2/organizations/#{organization_id}/members/#{encoded_user_id}",
@@ -118,7 +118,7 @@ defmodule <%= app_module %>.Auth0API do
 
   def get_organization_members(organization_id) do
     with {:ok, token} <- get_access_token(),
-      domain = Application.get_env(:aurora, __MODULE__)[:domain],
+      domain = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:domain],
       {:ok, %{status: 200, body: body}} <- Req.get(
         "https://#{domain}/api/v2/organizations/#{organization_id}/members",
         headers: [
@@ -144,7 +144,7 @@ defmodule <%= app_module %>.Auth0API do
     }
 
     with {:ok, token} <- get_access_token(),
-      domain = Application.get_env(:aurora, __MODULE__)[:domain],
+      domain = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:domain],
       {:ok, %{status: 204, body: body}} <- Req.post(
         "https://#{domain}/api/v2/organizations/#{org_id}/members",
         json: body,
@@ -167,7 +167,7 @@ defmodule <%= app_module %>.Auth0API do
 
   def get_roles do
     with {:ok, token} <- get_access_token(),
-      domain = Application.get_env(:aurora, __MODULE__)[:domain],
+      domain = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:domain],
       {:ok, %{status: 200, body: body}} <- Req.get(
         "https://#{domain}/api/v2/roles",
         headers: [
@@ -190,7 +190,7 @@ defmodule <%= app_module %>.Auth0API do
   def get_users_roles(user_id) do
     encoded_user_id = URI.encode_www_form(user_id)
     with {:ok, token} <- get_access_token(),
-      domain = Application.get_env(:aurora, __MODULE__)[:domain],
+      domain = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:domain],
       {:ok, %{status: 200, body: body}} <- Req.get(
         "https://#{domain}/api/v2/users/#{encoded_user_id}/roles",
         headers: [
@@ -214,7 +214,7 @@ defmodule <%= app_module %>.Auth0API do
   def delete_user(user_id) do
     encoded_user_id = URI.encode_www_form(user_id)
     with {:ok, token} <- get_access_token(),
-      domain = Application.get_env(:aurora, __MODULE__)[:domain],
+      domain = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:domain],
       {:ok, %{status: 204}} <- Req.delete(
         "https://#{domain}/api/v2/users/#{encoded_user_id}",
         headers: [
@@ -251,7 +251,7 @@ defmodule <%= app_module %>.Auth0API do
     }
 
     with {:ok, token} <- get_access_token(),
-      domain = Application.get_env(:aurora, __MODULE__)[:domain],
+      domain = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:domain],
       {:ok, %{status: 201, body: body}} <- Req.post(
         "https://#{domain}/api/v2/users",
         json: body,
@@ -278,7 +278,7 @@ defmodule <%= app_module %>.Auth0API do
     }
 
     with {:ok, token} <- get_access_token(),
-      domain = Application.get_env(:aurora, __MODULE__)[:domain],
+      domain = Application.get_env(:<%= Macro.underscore(app_module) %>, __MODULE__)[:domain],
       {:ok, %{status: 204, body: body}} <- Req.post(
         "https://#{domain}/api/v2/users/#{encoded_user_id}/roles",
         json: body,

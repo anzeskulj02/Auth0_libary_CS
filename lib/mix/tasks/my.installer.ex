@@ -143,8 +143,6 @@ defmodule Mix.Tasks.My.Installer do
         content
         |> String.replace(
           """
-          pipeline :api do
-            plug :accepts, ["json"]
           end
           """,
           """
