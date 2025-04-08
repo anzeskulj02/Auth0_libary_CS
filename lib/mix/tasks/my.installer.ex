@@ -28,12 +28,25 @@ defmodule Mix.Tasks.My.Installer do
     template_path =
       :my_installer
       |> :code.priv_dir()
-      |> Path.join("templates/auth_controller.ex")
 
-    content =
-      render_template(template_path, assigns)
+    content_auth0_controller = render_template(Path.join(template_path, "auth_controller.ex"), assigns)
 
-    File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/controllers/auth0_controller.ex"), content)
+    content_ensure_authenticated = render_template(Path.join(template_path, "ensure_authenticated.ex"), assigns)
+    content_load_tenant = render_template(Path.join(template_path, "load_tenant.ex"), assigns)
+
+    content_guardian = render_template(Path.join(template_path, "guardian.ex"), assigns)
+
+    File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/controllers/auth0_controller.ex"), content_auth0_controller)
+
+    case File.mkdir_p("lib/#{Macro.underscore(app_module)}_web/plugs") do
+      :ok ->
+        File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/plugs/ensure_authenticated.ex"), content_ensure_authenticated)
+        File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/plugs/load_tenant.ex"), content_load_tenant)
+      {:error, reason} ->
+        Mix.shell().info("Failed to create plugs folder.#{inspect(reason)}")
+    end
+
+    File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/guardian.ex"), content_guardian)
   end
 
   defp modify_router(app_path) do
@@ -57,7 +70,6 @@ defmodule Mix.Tasks.My.Installer do
     Mix.Project.get!()
       |> Module.split()
       |> Enum.at(0)
-
   end
 
   defp render_template(template_path, assigns) do
