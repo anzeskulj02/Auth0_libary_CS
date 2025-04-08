@@ -52,18 +52,27 @@ defmodule Mix.Tasks.My.Installer do
       :my_installer
       |> :code.priv_dir()
 
+    # Content of Auth controller, pluga and guardian is changed here.
     content_auth0_controller = render_template(Path.join(template_path, "auth_controller.ex"), assigns)
     content_ensure_authenticated = render_template(Path.join(template_path, "ensure_authenticated.ex"), assigns)
     content_load_tenant = render_template(Path.join(template_path, "load_tenant.ex"), assigns)
     content_guardian = render_template(Path.join(template_path, "guardian.ex"), assigns)
 
+    # Content of schemas for users, tenants and tenant_data is changed here.
     content_users = render_template(Path.join(template_path, "user.ex"), assigns)
     content_tenant_data = render_template(Path.join(template_path, "tenant_data.ex"), assigns)
     content_tenant = render_template(Path.join(template_path, "tenant.ex"), assigns)
 
+    # Content od migrations for users, tenants and tenant_data is changed here.
     content_users_migration = render_template(Path.join(template_path, "20250311090001_create_users.exs"), assigns)
     content_tenants_migration = render_template(Path.join(template_path, "20250311090000_create_tenants.exs"), assigns)
     content_tenant_data_migrations = render_template(Path.join(template_path, "20250311090002_create_tenant_data.exs"), assigns)
+
+    content_accounts_queries = render_template(Path.join(template_path, "accounts.ex"), assigns)
+    content_tenants_queries = render_template(Path.join(template_path, "tenants.ex"), assigns)
+
+    content_auth0_api = render_template(Path.join(template_path, "auth0_api.ex"), assigns)
+
 
     File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/controllers/auth0_controller.ex"), content_auth0_controller)
 
@@ -101,6 +110,11 @@ defmodule Mix.Tasks.My.Installer do
         Mix.shell().info("⚠️ Failed to create migrations folder.#{inspect(reason)}")
     end
 
+    File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}/accounts.ex"), content_accounts_queries)
+    File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}/tenants.ex"), content_tenants_queries)
+
+    File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}/auth0_api.ex"), content_auth0_api)
+
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/controllers/auth0_controller.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/plugs/ensure_authenticated.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/plugs/load_tenant.ex created")
@@ -111,6 +125,9 @@ defmodule Mix.Tasks.My.Installer do
     Mix.shell().info("✅ priv/repo/migrations/20250311090001_create_users.ex created")
     Mix.shell().info("✅ priv/repo/migrations/20250311090000_create_tenants.ex created")
     Mix.shell().info("✅ priv/repo/migrations/20250311090000_create_tenant_data.ex created")
+    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/accounts.ex created")
+    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/tenants.ex created")
+    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/auth0_api.ex created")
     Mix.shell().info("\n")
   end
 

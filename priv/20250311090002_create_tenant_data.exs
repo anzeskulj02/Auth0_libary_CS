@@ -1,4 +1,4 @@
-defmodule Aurora.Repo.Migrations.CreateTenantData do
+defmodule <%= app_module %>.Repo.Migrations.CreateTenantData do
   use Ecto.Migration
 
   def change do
