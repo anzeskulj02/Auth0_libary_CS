@@ -150,7 +150,7 @@ defmodule Mix.Tasks.My.Installer do
             plug :accepts, ["html"]
             plug :fetch_session
             plug :fetch_live_flash
-            plug :put_root_layout, html: {LibaryTestingAuth0Web.Layouts, :root}
+            plug :put_root_layout, html: {#{app_module}.Layouts, :root}
             plug :protect_from_forgery
             plug :put_secure_browser_headers
           end
@@ -160,7 +160,7 @@ defmodule Mix.Tasks.My.Installer do
             plug :accepts, ["html"]
             plug :fetch_session
             plug :fetch_live_flash
-            plug :put_root_layout, html: {LibaryTestingAuth0Web.Layouts, :root}
+            plug :put_root_layout, html: {#{app_module}.Layouts, :root}
             plug :protect_from_forgery
             plug :put_secure_browser_headers
           end
