@@ -35,6 +35,7 @@ defmodule Mix.Tasks.My.Installer do
         export AUTH0_MANAGEMENT_API=your_auth0_management_api
         export AUTH0_MANAGEMENT_GRANT_ID=your_auth0_management_grant_id
         ```
+
       3. Source your `.env` file:
         `source .env`
 
@@ -93,9 +94,9 @@ defmodule Mix.Tasks.My.Installer do
 
     case File.mkdir_p("priv/repo/migrations") do
       :ok ->
-        File.write!(Path.join(app_path, "priv/repo/migrations/20250311090001_create_users.ex"), content_users_migration)
-        File.write!(Path.join(app_path, "priv/repo/migrations/20250311090000_create_tenants.ex"), content_tenants_migration)
-        File.write!(Path.join(app_path, "priv/repo/migrations/20250311090000_create_tenant_data.ex"), content_tenant_data_migrations)
+        File.write!(Path.join(app_path, "priv/repo/migrations/20250311090001_create_users.exs"), content_users_migration)
+        File.write!(Path.join(app_path, "priv/repo/migrations/20250311090000_create_tenants.exs"), content_tenants_migration)
+        File.write!(Path.join(app_path, "priv/repo/migrations/20250311090002_create_tenant_data.exs"), content_tenant_data_migrations)
       {:error, reason} ->
         Mix.shell().info("⚠️ Failed to create migrations folder.#{inspect(reason)}")
     end
@@ -163,12 +164,14 @@ defmodule Mix.Tasks.My.Installer do
 
     content = File.read!(config_path)
 
-    unless String.contains?(content, "Auth0") do
+    unless String.contains?(content, "# Auth0 configuration") do
       modified =
         content
         |> String.replace("import Config",
           """
           import Config
+
+          # Auth0 configuration
           config :ueberauth, Ueberauth,
             providers: [
               auth0:
