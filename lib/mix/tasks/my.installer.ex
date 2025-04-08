@@ -25,8 +25,13 @@ defmodule Mix.Tasks.My.Installer do
 
     assigns = [app_module: app_module]
 
+    template_path =
+      :my_installer
+      |> :code.priv_dir()
+      |> Path.join("templates/auth_controller.ex")
+
     content =
-      render_template("priv/templates/auth_controller.ex", assigns)
+      render_template(template_path, assigns)
 
     File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}/controllers/auth0_controller.ex"), content)
   end
