@@ -14,10 +14,33 @@ defmodule Mix.Tasks.My.Installer do
     # Add new files
     copy_templates(app_path)
 
-    # Modify existing files
+    # Modify router
     modify_router(app_path)
 
-    Mix.shell().info("✅ MyInstaller installed successfully.")
+    # Modify config
+    modify_config(app_path)
+
+    Mix.shell().info(
+      """
+      ✅ Auth0 installed successfully.
+
+      1. Run `mix ecto.migrate` to create the necessary database tables.
+
+      2. Add the following environment variables to your `.env` file:
+        ```
+        export AUTH0_DOMAIN=your_auth0_domain
+        export AUTH0_CLIENT_ID=your_auth0_client_id
+        export AUTH0_CLIENT_SECRET=your_auth0_client_secret
+        export GUARDIAN_SECRET_KEY=your_guardian_secret_key
+        export AUTH0_MANAGEMENT_API=your_auth0_management_api
+        export AUTH0_MANAGEMENT_GRANT_ID=your_auth0_management_grant_id
+        ```
+      3. Source your `.env` file:
+        `source .env`
+
+      4. Start your Phoenix server:
+        `iex -S mix phx.server`
+      """)
   end
 
   defp copy_templates(app_path) do
@@ -71,6 +94,7 @@ defmodule Mix.Tasks.My.Installer do
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/accounts/user.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/tenants/tenant_data.ex created")
     Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/tenants/tenant.ex created")
+    Mix.shell().info("\n")
   end
 
   defp modify_router(app_path) do
@@ -80,15 +104,89 @@ defmodule Mix.Tasks.My.Installer do
 
     content = File.read!(router_path)
 
-    unless String.contains?(content, "MyInstallerPlug") do
+    unless String.contains?(content, "/auth") do
       modified =
         content
-        |> String.replace("use Phoenix.Router", "use Phoenix.Router\n  import MyInstallerPlug")
+        |> String.replace(
+          """
+          pipeline :api do
+            plug :accepts, ["json"]
+          end
+          """,
+          """
+          # Auth0 authentication routes
+          scope "/auth", #{app_module} do
+            pipe_through :browser
+
+            get "/:provider", AuthController, :request
+            get "/:provider/callback", AuthController, :callback
+            post "/:provider/callback", AuthController, :callback
+            get "/:provider/logout", AuthController, :logout
+          end
+
+          # Authenticated routes
+          pipeline :authenticated do
+            plug #{app_module}.Plugs.EnsureAuthenticated
+            plug #{app_module}.Plugs.LoadTenant
+          end
+          """)
 
       File.write!(router_path, modified)
-      Mix.shell().info("✏️  Modified router.ex to include MyInstallerPlug")
+      Mix.shell().info("✏️  Modified router.ex to include Auth0 routes and authentication pipeline")
+      Mix.shell().info("\n")
     else
-      Mix.shell().info("⚠️  router.ex already contains MyInstallerPlug")
+      Mix.shell().info("⚠️  router.ex already contains Auth0")
+      Mix.shell().info("\n")
+    end
+  end
+
+  def modify_config(app_path) do
+    app_module = get_app_module_name()
+
+    config_path = Path.join(app_path, "config/config.exs")
+
+    content = File.read!(config_path)
+
+    unless String.contains?(content, "Auth0") do
+      modified =
+        content
+        |> String.replace("import Config",
+          """
+          import Config
+          config :ueberauth, Ueberauth,
+            providers: [
+              auth0:
+                {Ueberauth.Strategy.Auth0,
+                [
+                  default_scope: "openid email profile",
+                  organization: {&#{app_module}Web.AuthController.get_organization/1, []},
+                  organization_parameter_type: :param
+                ]}
+            ]
+
+          config :ueberauth, Ueberauth.Strategy.Auth0.OAuth,
+            domain: System.get_env("AUTH0_DOMAIN"),
+            client_id: System.get_env("AUTH0_CLIENT_ID"),
+            client_secret: System.get_env("AUTH0_CLIENT_SECRET")
+
+          # Configure Guardian for JWT handling
+          config :#{Macro.underscore(app_module)}, #{app_module}Web.Guardian,
+            issuer: "auth0poc",
+            secret_key: System.get_env("GUARDIAN_SECRET_KEY", "your_dev_secret")
+
+          # Configure API token for Auth0 Management API
+          config :#{Macro.underscore(app_module)}, #{app_module}.Auth0API,
+            domain: System.get_env("AUTH0_DOMAIN"),
+            client_id: System.get_env("AUTH0_CLIENT_ID"),
+            client_secret: System.get_env("AUTH0_CLIENT_SECRET")
+        """)
+
+      File.write!(config_path, modified)
+      Mix.shell().info("✏️  Modified config.exs to include MyInstaller configuration")
+      Mix.shell().info("\n")
+    else
+      Mix.shell().info("⚠️  config.exs already contains MyInstaller configuration")
+      Mix.shell().info("\n")
     end
   end
 
