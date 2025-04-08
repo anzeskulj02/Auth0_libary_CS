@@ -22,7 +22,6 @@ defmodule Mix.Tasks.My.Installer do
 
   defp copy_templates(app_path) do
     app_module = get_app_module_name()
-
     assigns = [app_module: app_module]
 
     template_path =
@@ -30,11 +29,13 @@ defmodule Mix.Tasks.My.Installer do
       |> :code.priv_dir()
 
     content_auth0_controller = render_template(Path.join(template_path, "auth_controller.ex"), assigns)
-
     content_ensure_authenticated = render_template(Path.join(template_path, "ensure_authenticated.ex"), assigns)
     content_load_tenant = render_template(Path.join(template_path, "load_tenant.ex"), assigns)
-
     content_guardian = render_template(Path.join(template_path, "guardian.ex"), assigns)
+
+    content_users = render_template(Path.join(template_path, "users.ex"), assigns)
+    content_tenant_data = render_template(Path.join(template_path, "tenant_data.ex"), assigns)
+    content_tenant = render_template(Path.join(template_path, "tenant.ex"), assigns)
 
     File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/controllers/auth0_controller.ex"), content_auth0_controller)
 
@@ -43,14 +44,39 @@ defmodule Mix.Tasks.My.Installer do
         File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/plugs/ensure_authenticated.ex"), content_ensure_authenticated)
         File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/plugs/load_tenant.ex"), content_load_tenant)
       {:error, reason} ->
-        Mix.shell().info("Failed to create plugs folder.#{inspect(reason)}")
+        Mix.shell().info("⚠️ Failed to create plugs folder.#{inspect(reason)}")
     end
 
     File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/guardian.ex"), content_guardian)
+
+    case File.mkdir_p("lib/#{Macro.underscore(app_module)}/accounts") do
+      :ok ->
+        File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}/accounts/users.ex"), content_users)
+      {:error, reason} ->
+        Mix.shell().info("⚠️ Failed to create accounts folder.#{inspect(reason)}")
+    end
+
+    case File.mkdir_p("lib/#{Macro.underscore(app_module)}/tenants") do
+      :ok ->
+        File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}/tenants/tenant_data.ex"), content_tenant_data)
+        File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}/tenants/tenant.ex"), content_tenant)
+      {:error, reason} ->
+        Mix.shell().info("⚠️ Failed to create tenants folder.#{inspect(reason)}")
+    end
+
+    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/controllers/auth0_controller.ex created")
+    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/plugs/ensure_authenticated.ex created")
+    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/plugs/load_tenant.ex created")
+    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}_web/guardian.ex created")
+    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/accounts/users.ex created")
+    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/tenants/tenant_data.ex created")
+    Mix.shell().info("✅ lib/#{Macro.underscore(app_module)}/tenants/tenant.ex created")
   end
 
   defp modify_router(app_path) do
-    router_path = Path.join(app_path, "lib/my_app_web/router.ex")
+    app_module = get_app_module_name()
+
+    router_path = Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/router.ex")
 
     content = File.read!(router_path)
 
