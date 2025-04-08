@@ -149,23 +149,23 @@ defmodule Mix.Tasks.My.Installer do
           use #{app_module}Web, :router
           """,
           """
-          use #{app_module}Web, :router
+            use #{app_module}Web, :router
 
-          # Auth0 authentication routes
-          scope "/auth", #{app_module} do
-            pipe_through :browser
+            # Auth0 authentication routes
+            scope "/auth", #{app_module}Web do
+              pipe_through :browser
 
-            get "/:provider", AuthController, :request
-            get "/:provider/callback", AuthController, :callback
-            post "/:provider/callback", AuthController, :callback
-            get "/:provider/logout", AuthController, :logout
-          end
+              get "/:provider", AuthController, :request
+              get "/:provider/callback", AuthController, :callback
+              post "/:provider/callback", AuthController, :callback
+              get "/:provider/logout", AuthController, :logout
+            end
 
-          # Authenticated routes
-          pipeline :authenticated do
-            plug #{app_module}.Plugs.EnsureAuthenticated
-            plug #{app_module}.Plugs.LoadTenant
-          end
+            # Authenticated routes
+            pipeline :authenticated do
+              plug #{app_module}Web.Plugs.EnsureAuthenticated
+              plug #{app_module}Web.Plugs.LoadTenant
+            end
           """)
 
       File.write!(router_path, modified)
