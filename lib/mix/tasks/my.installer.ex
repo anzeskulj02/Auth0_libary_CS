@@ -62,7 +62,7 @@ defmodule Mix.Tasks.My.Installer do
 
     content_users_migration = render_template(Path.join(template_path, "20250311090001_create_users.exs"), assigns)
     content_tenants_migration = render_template(Path.join(template_path, "20250311090000_create_tenants.exs"), assigns)
-    content_tenant_data_migrations = render_template(Path.join(template_path, "20250311090000_create_tenant_data.exs"), assigns)
+    content_tenant_data_migrations = render_template(Path.join(template_path, "20250311090002_create_tenant_data.exs"), assigns)
 
     File.write!(Path.join(app_path, "lib/#{Macro.underscore(app_module)}_web/controllers/auth0_controller.ex"), content_auth0_controller)
 
