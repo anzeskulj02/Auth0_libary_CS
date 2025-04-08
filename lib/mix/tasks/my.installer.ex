@@ -33,7 +33,7 @@ defmodule Mix.Tasks.My.Installer do
     content_load_tenant = render_template(Path.join(template_path, "load_tenant.ex"), assigns)
     content_guardian = render_template(Path.join(template_path, "guardian.ex"), assigns)
 
-    content_users = render_template(Path.join(template_path, "users.ex"), assigns)
+    content_users = render_template(Path.join(template_path, "user.ex"), assigns)
     content_tenant_data = render_template(Path.join(template_path, "tenant_data.ex"), assigns)
     content_tenant = render_template(Path.join(template_path, "tenant.ex"), assigns)
 
