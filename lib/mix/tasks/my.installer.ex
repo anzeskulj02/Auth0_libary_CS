@@ -36,10 +36,13 @@ defmodule Mix.Tasks.My.Installer do
         export AUTH0_MANAGEMENT_GRANT_ID=your_auth0_management_grant_id
         ```
 
-      3. Source your `.env` file:
+      3. Add autentication pipeline in router based on your needs.
+        `pipe_through [:browser, :authenticated]`
+
+      4. Source your `.env` file:
         `source .env`
 
-      4. Start your Phoenix server:
+      5. Start your Phoenix server:
         `iex -S mix phx.server`
       """)
   end
@@ -143,9 +146,25 @@ defmodule Mix.Tasks.My.Installer do
         content
         |> String.replace(
           """
+          pipeline :browser do
+            plug :accepts, ["html"]
+            plug :fetch_session
+            plug :fetch_live_flash
+            plug :put_root_layout, html: {LibaryTestingAuth0Web.Layouts, :root}
+            plug :protect_from_forgery
+            plug :put_secure_browser_headers
           end
           """,
           """
+          pipeline :browser do
+            plug :accepts, ["html"]
+            plug :fetch_session
+            plug :fetch_live_flash
+            plug :put_root_layout, html: {LibaryTestingAuth0Web.Layouts, :root}
+            plug :protect_from_forgery
+            plug :put_secure_browser_headers
+          end
+
           # Auth0 authentication routes
           scope "/auth", #{app_module} do
             pipe_through :browser
